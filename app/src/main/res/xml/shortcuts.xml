@@ -1,0 +1,13 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="quick_read"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_view"
+        android:shortcutShortLabel="Quick Read"
+        android:shortcutLongLabel="Open E-Reader">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.trashhotdog123.ereader"
+            android:targetClass="com.trashhotdog123.ereader.MainActivity" />
+    </shortcut>
+</shortcuts>
