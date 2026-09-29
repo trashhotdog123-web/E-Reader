@@ -6,7 +6,8 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.widget.Toast
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -254,7 +256,7 @@ fun ReaderUi(
                 }
 
                 settings.mode == "Flip" -> {
-                    Crossfade(targetState = page, label = "pageFlip") { shown ->
+                    PaperFlip(targetPage = page) { shown ->
                         ReaderPage(
                             book = book,
                             text = if (doc.isPdf) null else doc.pages[shown],
@@ -356,6 +358,29 @@ fun ReaderUi(
             },
             dismissButton = { TextButton(onClick = { noteOpen = false }) { Text("Cancel") } }
         )
+    }
+}
+
+@Composable
+private fun PaperFlip(targetPage: Int, content: @Composable (Int) -> Unit) {
+    var shown by remember { mutableIntStateOf(targetPage) }
+    val angle = remember { Animatable(0f) }
+
+    LaunchedEffect(targetPage) {
+        if (targetPage == shown) return@LaunchedEffect
+        angle.snapTo(0f)
+        angle.animateTo(90f, tween(150))
+        shown = targetPage
+        angle.animateTo(0f, tween(180))
+    }
+
+    Box(
+        Modifier.fillMaxSize().graphicsLayer {
+            rotationY = angle.value
+            cameraDistance = 18f * density
+        }
+    ) {
+        content(shown)
     }
 }
 
