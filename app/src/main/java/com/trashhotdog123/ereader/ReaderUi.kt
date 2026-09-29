@@ -7,6 +7,7 @@ import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.widget.Toast
 import androidx.compose.animation.Crossfade
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
@@ -33,7 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.snapshotFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -97,10 +97,10 @@ fun ReaderUi(
 
     DisposableEffect(book.id) {
         registerVolume { delta ->
-            val doc = document ?: return@registerVolume
-            if (settings.mode == "Flip") {
+            val doc = document
+            if (doc != null && settings.mode == "Flip") {
                 page = (page + delta).coerceIn(0, max(0, doc.pages.lastIndex))
-            } else {
+            } else if (doc != null) {
                 scope.launch {
                     val target = (listState.firstVisibleItemIndex + delta)
                         .coerceIn(0, max(0, doc.pages.lastIndex))
