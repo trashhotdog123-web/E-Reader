@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 
 @Composable
 fun ShelfUi(
@@ -274,5 +275,3 @@ fun VaultUi(
         }
     }
 }
-
-private fun Int.roundToInt(): Int = this
