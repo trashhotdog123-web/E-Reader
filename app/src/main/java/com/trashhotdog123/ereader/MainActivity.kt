@@ -129,12 +129,12 @@ private fun EReaderThemeAndApp(registerVolume: (((Int) -> Unit)?) -> Unit) {
                     Modifier.padding(pad), books.filter { !it.inVault }, books, genre, { genre = it }, importing,
                     { launcher.launch("*/*") }, { openBook = it }, { editBook = it },
                     { book -> deleteBook(book, store); reload() },
-                    { book -> toggleVault(context, book, store); reload() }
+                    { book -> toggleVault(context, book, store) { reload() } }
                 )
                 Tab.VAULT -> VaultUi(
                     Modifier.padding(pad), books.filter { it.inVault }, vaultUnlocked, { vaultUnlocked = true },
                     { openBook = it }, { editBook = it }, { book -> deleteBook(book, store); reload() },
-                    { book -> toggleVault(context, book, store); reload() }
+                    { book -> toggleVault(context, book, store) { reload() } }
                 )
                 Tab.STATS -> StatsUi(Modifier.padding(pad), stats, settings.defaultWpm, books, { testWpm = true })
                 Tab.SETTINGS -> SettingsUi(
@@ -199,7 +199,7 @@ private fun deleteBook(book: Book, store: LibraryStore) {
     store.remove(book.id)
 }
 
-private fun toggleVault(context: Context, book: Book, store: LibraryStore) {
+private fun toggleVault(context: Context, book: Book, store: LibraryStore, onDone: () -> Unit) {
     context.lifecycleScope.launch(Dispatchers.IO) {
         runCatching {
             if (book.inVault) {
@@ -218,6 +218,8 @@ private fun toggleVault(context: Context, book: Book, store: LibraryStore) {
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, "Vault error: " + (it.message ?: "unknown error"), Toast.LENGTH_LONG).show()
             }
+        }.onSuccess {
+            withContext(Dispatchers.Main) { onDone() }
         }
     }
 }
