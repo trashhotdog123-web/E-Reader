@@ -75,12 +75,8 @@ object BookParser {
             val paragraphs = document.getElementsByTagName("w:p")
             val out = StringBuilder()
             for (i in 0 until paragraphs.length) {
-                val ts = paragraphs.item(i).childNodes
-                val textNodes = (0 until ts.length).mapNotNull { index ->
-                    val node = ts.item(index)
-                    if (node.nodeName == "w:r") node.childNodes.asSequence().firstOrNull { it.nodeName == "w:t" }?.textContent else null
-                }
-                textNodes.forEach { out.append(it) }
+                val ts = paragraphs.item(i).getElementsByTagName("w:t")
+                for (j in 0 until ts.length) out.append(ts.item(j).textContent)
                 out.append("\n\n")
             }
             return paginate(out.toString())
